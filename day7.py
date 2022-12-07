@@ -1,9 +1,17 @@
 import pathlib
+
+
+# Solutie: parcurg linie cu linie, cand intalnesc comanda de $ cd, in functie de argument, creez un obiect
+# PosixPath (pot sa folosesc / pentru a compune un path, si .parent pentru a stabilii radacina)
+# Folosesc un defaultdict (nu ridica keyerror) si stochez fiecare path : dimensiunea fisierelor din el
+# Pentru partea 1 si 2, doar parcurg dictionarul si fac operatii cu dimensiunile fisierelor.
+
 def partea_1(inputs):
     # Un 'dictionar' care sa contina toate path-urile (arbore)
     director_curent = pathlib.Path("/")
     # Un dictionar in care se stocheaza fisierele si se calculeaza dimensiunile
-    system = dict()
+    from collections import defaultdict
+    system = defaultdict(int)
     # parcurgem liniile
     for line in inputs:
         # Switch pentru fiecare comanda care incepe cu $
@@ -27,20 +35,17 @@ def partea_1(inputs):
                 ...
             # Caz dimensiune file - output de la ls
             case _:
-                dimensiune, _ = line.split()
-                # Poate merge cu default dict
+                dimensiune = line.split()[0]
+                # copiez posix-ul director_curent pentru a nu-l suprascrie !!!
+                _cpy = director_curent
                 # Daca path-ul nu este in dictionar, il adaug, si adun dimensiunile fisierelor
-                if director_curent not in system.keys():
-                    system[director_curent] = 0
-                    system[director_curent] += int(dimensiune)
+                # Cu defaultdict pot sa adun direct, fara sa mai verific daca _cpy este in dict
+                system[_cpy] += int(dimensiune)
                 # Incep parcurgerea de jos in sus
-                while director_curent != pathlib.Path("/"):
-                    director_curent = director_curent.parent
+                while _cpy != pathlib.Path("/"):
+                    _cpy = _cpy.parent
                     # poate merge cu default dict?
-                    if director_curent not in system.keys():
-                        system[director_curent] = 0
-                        system[director_curent] += int(dimensiune)
-
+                    system[_cpy] += int(dimensiune)
     suma = 0
     for dimensiune in system.values():
         if dimensiune <= 100000:
