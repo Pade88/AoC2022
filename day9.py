@@ -37,7 +37,7 @@ def partea_1(my_inputs):
     return len(v1)
 
 
-def partea_2(inputs):
+def partea_2(my_inputs):
     noduri = [numpy.array([0, 0]) for _ in range(10)]
     v1 = {(0, 0)}
     for line in my_inputs:
