@@ -16,8 +16,10 @@ def create_monkeys(my_inputs):
             continue
         match line.strip().split()[0]:
             case 'Monkey':
+                # id-ul maimutei (nu cred ca e folosit)
                 monkey_id = int(line.split()[-1].replace(':', ''))
             case 'Starting':
+                # recuperez itemele, le convertesc pe toate la int
                 items = line.strip().split('Starting items: ')[1:]
                 items = list(map(int, items[0].split(', ')))
             case 'Operation:':
@@ -25,20 +27,15 @@ def create_monkeys(my_inputs):
                 # String la functie
                 op = eval("lambda old:" + line.split("=")[1])
             case 'Test:':
-                print(line)
+                # Divisible by 17 -> 17
                 tst = int(line.strip().split('divisible by')[-1])
-                print(tst)
-            case 'if':
-                print(line)
-                if_true = line.strip().split('if true:')[-1]
-                print(if_true)
-            case 'if false:':
-                if_false = line.strip().split('if false:')[-1]
             case _:
                 if 'true' in line:
                     # Stochez doar monkey id
+                    # If true: throw to monkey 5 -> 5
                     if_true = int(line.strip().split()[-1])
                 else:
+                    # If false: throw to monkey 0 -> 0
                     if_false = int(line.strip().split()[-1])
     return monkeys
 
@@ -64,19 +61,27 @@ def partea_1(my_inputs):
 def partea_2(my_inputs):
     monkeys = create_monkeys(my_inputs)
     counter = [0] * len(monkeys)
+
+    worry_lvl = 1
+    for monkey in monkeys:
+        worry_lvl *= monkey.test
+
     for _ in range(10_000):
         for idx, monkey in enumerate(monkeys):
             for item in monkey.items:
-                # Pentru fiecare item, aplic fct lambda si impart la 3
+                # Pentru fiecare item, aplic fct lambda si impart la worry_lvl
                 item = monkey.op(item)
-                item //= 3
+                item %= worry_lvl
+                # verific conditia (divisible with X)
+                # Si in functie de rezultat, modific lista de iteme a maimuite unde se arunca obiectul
                 if item % monkey.test == 0:
                     monkeys[monkey.test_tru].items.append(item)
                 else:
                     monkeys[monkey.test_fals].items.append(item)
+            # La final incrementez contorul cu numarul de iteme ramase, si le elimin
             counter[idx] += len(monkey.items)
             monkey.items = []
-    
+    # sortez si returnez produsul primelor 2
     counter.sort()
     return (counter[-1] * counter[-2])
 
